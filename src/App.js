@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import ModelViewer from './components/ModelViewer';
-import HomePage from './pages/HomePage';
-import ProjectPage from './pages/ProjectPage';
-import LayoutsPage from './pages/LayoutsPage';
-import MapPage from './pages/MapPage';
-import ContactsPage from './pages/ContactsPage';
-import { projects } from './data/projects';
 
 // Тестовые данные для застройщика "Премиум Девелопмент"
 const DEVELOPER_DATA = {
@@ -1433,16 +1427,14 @@ function App() {
   }, []);
 
   return (
-    <Router basename={process.env.PUBLIC_URL}>
+    <Router>
       <div className="min-h-screen bg-white dark:bg-gray-800">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/project/:id" element={<ProjectPage />} />
           <Route path="/layout/:id" element={<LayoutPage />} />
           <Route path="/layouts" element={<LayoutsPage />} />
-          <Route path="/map" element={<MapPage />} />
           <Route path="/contacts" element={<ContactsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

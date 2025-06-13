@@ -43,22 +43,38 @@ function Model({ url }) {
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         
+        console.log('Model bounds:', {
+          center: center.toArray(),
+          size: size.toArray()
+        });
+        
         // Вычисляем максимальный размер для масштабирования
         const maxDim = Math.max(size.x, size.y, size.z);
         const scale = 5 / maxDim;
         
+        console.log('Model scale:', scale);
+        
         // Центрируем и масштабируем модель
-        scene.position.sub(center);
-        scene.scale.multiplyScalar(scale);
+        scene.position.set(0, 0, 0); // Сбрасываем позицию
+        scene.scale.setScalar(scale); // Устанавливаем масштаб
         
         // Обновляем ограничивающий бокс после трансформаций
         box.setFromObject(scene);
         const newCenter = box.getCenter(new THREE.Vector3());
         
+        // Перемещаем модель так, чтобы её центр был в начале координат
+        scene.position.sub(newCenter);
+        
+        console.log('Model position after transform:', scene.position.toArray());
+        console.log('Model center after transform:', newCenter.toArray());
+        
         // Устанавливаем начальную позицию камеры
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 2, 5);
-        camera.lookAt(newCenter);
+        camera.position.set(0, 10, 0);
+        camera.lookAt(0, 0, 0); // Смотрим в центр сцены
+        
+        console.log('Camera position:', camera.position.toArray());
+        console.log('Camera target:', [0, 0, 0]);
 
         // Настройка материалов и теней
         scene.traverse((child) => {
@@ -149,7 +165,7 @@ function Controls({ onViewChange, currentView }) {
   const [isDragging, setIsDragging] = useState(false);
   const lastTouchRef = useRef(null);
   const cameraStateRef = useRef({
-    position: new THREE.Vector3(0, 2, 5),
+    position: new THREE.Vector3(0, 10, 0),
     target: new THREE.Vector3(0, 0, 0)
   });
 
@@ -158,7 +174,7 @@ function Controls({ onViewChange, currentView }) {
     back: { position: [0, 2, -5], target: [0, 0, 0] },
     left: { position: [-5, 2, 0], target: [0, 0, 0] },
     right: { position: [5, 2, 0], target: [0, 0, 0] },
-    top: { position: [0, 5, 0], target: [0, 0, 0] },
+    top: { position: [0, 10, 0], target: [0, 0, 0] },
     isometric: { position: [5, 5, 5], target: [0, 0, 0] }
   };
 
@@ -269,7 +285,7 @@ function Controls({ onViewChange, currentView }) {
       target={cameraStateRef.current.target}
       enableDamping={true}
       minPolarAngle={0}
-      maxPolarAngle={Math.PI}
+      maxPolarAngle={Math.PI / 2}
       makeDefault
     />
   );
@@ -323,7 +339,7 @@ function ViewControls({ onViewChange, currentView }) {
 }
 
 export default function ModelViewer({ modelUrl }) {
-  const [currentView, setCurrentView] = useState('front');
+  const [currentView, setCurrentView] = useState('top');
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -351,7 +367,7 @@ export default function ModelViewer({ modelUrl }) {
           depth: true
         }}
         camera={{ 
-          position: [0, 2, 5], 
+          position: [0, 10, 0], 
           fov: 45,
           near: 0.1,
           far: 1000
